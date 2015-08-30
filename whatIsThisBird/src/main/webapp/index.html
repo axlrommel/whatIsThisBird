@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Image Crop v3</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
+	<link rel="icon" href="data:;base64,iVBORw0KGgo=">
+	<link href='http://fonts.googleapis.com/css?family=Bitter|Cantora+One|PT+Serif:400,700' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" type="text/css" href="css/example.css">
+	<link rel="stylesheet" type="text/css" href="css/crop.css">
+	<script src="js/jquery.min.js"></script>
+	<script src="js/syntaxhighlight.js"></script>
+	<script src="js/crop.js"></script>
+</head>
+
+<body>
+
+	<div class="example">
+
+		<!-- cropper container element -->
+		<div class="default"></div>
+
+	</div>
+
+	<ul class="cmd">
+		<li onclick="foo.import();">Import</li>
+		<li onclick="foo.zoom('min');">Min</li>
+		<li onclick="foo.zoom('max');">Max</li>
+		<li onclick="foo.flip();">Flip</li>
+		<li onclick="foo.rotate();">Rotate</li>
+		<li class="maskbg">Mask</li>
+		<li><a id="unqiueID" onclick="foo.download(300, 300, 'test', 'png', this.id);" href="#">Download</a></li>
+		<li onclick="console.log(foo.crop(300,300,'png'))" data-tooltip="Prints object to console">Crop</li>
+		<li onclick="console.log(foo.original())" data-tooltip="Prints object to console">Original</li>
+	</ul>
+
+	<!-- preview container element -->
+	<!-- <div class="pre"></div> -->
+
+	<script>
+
+
+		//  create a new instance
+		// --------------------------------------------------------------------------
+
+		// you may do multiple instances of the cropper on a single page
+		// just be sure to give each a unique name
+		var foo = new CROP();
+
+		foo.init({
+
+			// element to load the cropper into
+			container: '.default',
+
+			// image to load, accepts base64 string
+			image: 'img/one.jpg',
+
+			// aspect ratio
+			width: 300,
+			height: 300,
+
+			// prevent image from leaking outside of container. boolean
+			mask: false,
+
+			// input[range] attributes
+			zoom: {
+
+				// slider step change
+				steps: 0.01,
+
+				// minimum and maximum zoom
+				min: 1,
+				max: 5
+
+			},
+
+			// optional preview. remove this object if you wish to hide it
+			//preview: {
+
+				// element to load the preview into
+			//	container: '.pre',
+
+				// aspect ratio
+			//	ratio: 0.5,
+
+			//},
+
+
+		});
+
+
+		//  toggle mask
+		// --------------------------------------------------------------------------
+
+		$('body').on("click", 'li.maskbg', function () {
+
+			$('.example').toggleClass('maskbg');
+			$('.default').attr('data-mask', $('.default').attr('data-mask') === 'true' ? 'false' : 'true');
+			$('li.maskbg').html($('li.maskbg').html() == 'Mask' ? 'Unmask' : 'Mask');
+
+		});
+
+
+	</script>
+
+	<div class="how">
+	<a class="btn" href="http://codecanyon.net/item/image-crop/5348464?ref=rabona">Buy for $10 at CodeCanyon</a>
+
+
+		<h4>Usage</h4>
+
+<pre><code class="prettyprint linenums">&lt;script>
+
+	// you may do multiple instances of the cropper on a single page
+	// just be sure to give each a unique name
+	var foo = new CROP();
+
+	foo.init({
+
+		// element to load the cropper into
+		container: '.default',
+
+		// image to load, accepts base64 string
+		image: 'test.jpg',
+
+		// aspect ratio
+		width: 300,
+		height: 300,
+
+		// prevent image from leaking outside of container. boolean
+		mask: true,
+
+		// input[range] attributes
+		zoom: {
+
+			// slider step change
+			steps: 0.01,
+
+			// minimum and maximum zoom
+			min: 1,
+			max: 5
+
+		},
+
+		// optional preview. remove this object if you wish to hide it
+		preview: {
+
+			// element to load the preview into
+			container: '.pre',
+
+			// aspect ratio
+			ratio: 1,
+
+		}
+
+	});
+
+&lt;/script></pre></code>
+
+	<p>Notes: The container elements must exist for the cropper to load into.</p>
+
+	<h3>Importing new image into existing cropper</h3>
+
+	<pre><code class="prettyprint linenums">foo.import(); // foo is the instance name</code></pre>
+
+	<p>In my above example, I'm triggering the import with a onclick.</p>
+
+	<pre><code class="prettyprint linenums">&lt;li onclick="foo.import();">Import&lt;/li></code></pre>
+
+	<p>So you may either attach an onclick attribute to any element, that when pressed will fire the function, or you may keep JS and HTML logic seperate.</p>
+
+	<pre><code class="prettyprint linenums">&lt;script>
+
+	// just apply the classname to the element instead of the onclick
+	$('body').on("click", '.classname', function () { foo.import(); });
+
+&lt;/script></code></pre>
+
+
+	<h4>Zooming</h4>
+
+	<p>The zoom slider will work right off the bat, however if you want to create an action that zooms to a specific point:</p>
+
+	<pre><code class="prettyprint linenums">foo.zoom('min');	// zoom to min
+foo.zoom('max');	// zoom to max
+foo.zoom(2.5);	// zoom to arbitrary number</code></pre>
+
+
+
+	<h4>Flipping Image</h4>
+	<pre><code class="prettyprint linenums">foo.flip();</code></pre>
+
+	<h4>Rotating Image</h4>
+	<pre><code class="prettyprint linenums">foo.rotate();</code></pre>
+
+	<h4>Downloading Image</h4>
+	<pre><code class="prettyprint linenums">&lt;a
+
+	&lt;!-- requires a unique id -->
+	id="unqiueID"
+
+	&lt;!--
+		parameters for the download() function are:
+		1. image width
+		2. image height
+		3. filename
+		4. data type - use either 'png' or 'jpeg'
+	-->
+	onclick="foo.download(400, 400, 'filename', 'png', this.id);"
+
+	href="#">Download&lt;/a></code></pre>
+
+	<h4>Crop Image</h4>
+
+	<pre><code class="prettyprint linenums">foo.crop(200, 200, 'jpeg'); // width, height, (optional) data type. Defaults to png</code></pre>
+
+	<p>This will return an object that contains the width, height, and image string + data type. You may use this to save the image like so:<p>
+
+	<pre><code class="prettyprint linenums">&lt;button class="saveimage">Save Image&lt;/button>
+
+&lt;script>
+
+	$('body').on("click", '.saveimage', function () {
+
+		$.ajax({
+			type: "post",
+			url: "save.php",
+			data: foo.crop(200, 200, 'png')
+		})
+		.done(function(data) {
+
+			// do stuff after image is saved
+
+		});
+
+	});
+
+&lt;/script></code></pre>
+
+<p>Now create save.php</p>
+
+<pre><code class="prettyprint linenums">&lt;?php
+
+if($_SERVER['REQUEST_METHOD'] == "POST") {
+
+	$img = str_replace('data:image/'.$_POST['type'].';base64,', '', $_POST['string']);
+	$img = str_replace(' ', '+', $img);
+
+	// logic to determine file name
+	$filename = 'test';
+
+	file_put_contents($filename . '.' . $_POST['type'], base64_decode($img));
+
+}</code></pre>
+
+<p>Or if you're worried about malicious strings being sent, you may re-create the image with <a href="http://php.net/manual/en/image.installation.php">GD</a>.</p>
+
+<pre><code class="prettyprint linenums">&lt;?php
+
+if($_SERVER['REQUEST_METHOD'] == "POST") {
+
+	// location to save cropped image
+	$url = 'saved.jpg';
+
+	// remove the base64 part
+	$base64 = base64_decode(preg_replace('#^data:image/[^;]+;base64,#', '', $_POST['string']));
+
+	// create image
+	$source = imagecreatefromstring($base64);
+
+	// save image
+	imagejpeg($source, $url, 100);
+
+}</pre></code>
+
+	<h4>Original Image String</h4>
+	<pre><code class="prettyprint linenums">foo.original();</code></pre>
+
+	<p>This will return an object containing the original images height, width, and string. You may send use this to save the original image.</p>
+
+	<h4>CSS</h4>
+	<p>The zoom slider is input[type="range"], that's all it is. <a href="http://codepen.io/search?q=input+range&limit=all&depth=everything&show_forks=false">Styling it is a piece of cake</a>.</p>
+
+	<a class="btn" href="http://codecanyon.net/item/image-crop/5348464?ref=rabona">Buy for $10 at CodeCanyon</a>
+
+	<script>
+		prettyPrint();
+	</script>
+
+</body>
+</html>
