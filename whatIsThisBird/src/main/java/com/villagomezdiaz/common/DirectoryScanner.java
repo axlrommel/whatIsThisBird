@@ -1,4 +1,4 @@
-package com.villagomezdiaz.utilities;
+package com.villagomezdiaz.common;
 
 import java.io.File;
 import java.util.ArrayList;
