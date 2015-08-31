@@ -14,7 +14,7 @@ import com.villagomezdiaz.common.DirectoryScanner;
 public class ImageCropper {
 
 	private static String pathIn = "/opt/images";
-	private static String pathOut = "/opt/detailedImages";
+	private static String pathOut = "/opt/croppedImages";
 	private static String f1 = "/home/rommel/CUB_200_2011/bounding_boxes.txt";
 	private static String f2 = "/home/rommel/CUB_200_2011/images.txt";
 	
@@ -56,7 +56,7 @@ public class ImageCropper {
 		        	strBuf.append("|");
 		        	strBuf.append(h);
 		        	
-		        	System.out.println(values[0] + " " + strBuf.toString());
+		        	//System.out.println(values[0] + " " + strBuf.toString());
 		        	mBoxes.put(values[0], strBuf.toString());
 		        }
 		    }
@@ -73,6 +73,10 @@ public class ImageCropper {
 			 {
 				 String inputPath = f.getAbsolutePath();
 				 String imageFName = inputPath.substring(pathIn.length() + 1);
+				 String outputPath = pathOut + inputPath.substring(pathIn.length());
+				 File output = new File(outputPath);
+				 System.out.println(outputPath);
+				 
 				 String key = (String)mImages.get(imageFName);
 				 String box = (String)mBoxes.get(key);
 				 String[] values = box.split("\\|");
@@ -84,16 +88,22 @@ public class ImageCropper {
 					 
 					 BufferedImage imageIn = ImageIO.read(f);
 					 
+					 // in case coordinates are incorrect and we are off the picture
+					 if(imageIn.getWidth() < x + w) {
+						 w = imageIn.getWidth() - x;
+					 }
+					 if(imageIn.getHeight() < y + h) {
+						 h = imageIn.getHeight() - y;
+					 }
+					 
 					 BufferedImage imageOut = imageIn.getSubimage(x, y, w, h);
-																 
-					 String outputPath = pathOut + inputPath.substring(pathIn.length());
-					 File output = new File(outputPath);
+																 				 
 					 String dirPath = output.getParent();
 					 File dir = new File(dirPath);
 					 dir.mkdirs();
 					 ImageIO.write(imageOut, "jpg", output);
 					 
-					 //System.out.println(outputPath);
+					 
 				 }
 			 }
 		}
