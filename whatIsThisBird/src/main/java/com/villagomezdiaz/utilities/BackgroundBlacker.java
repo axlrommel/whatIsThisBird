@@ -12,8 +12,8 @@ import com.villagomezdiaz.common.DirectoryScanner;
 
 public class BackgroundBlacker {
 
-	private static String pathIn = "/opt/detailedImages";
-	private static String pathOut = "/opt/blackendImagesAll";
+	private static String pathIn = "/opt/croppedImages";
+	private static String pathOut = "/opt/backBlack";
 	
 	public static void main(String[] args) {
 		final int almostBlack = 50;
