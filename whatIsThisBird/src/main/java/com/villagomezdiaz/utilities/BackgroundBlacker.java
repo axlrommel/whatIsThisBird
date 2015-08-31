@@ -8,7 +8,7 @@ import javax.imageio.ImageIO;
 
 import com.jhlabs.image.ImageUtils;
 import com.villagomezdiaz.common.ColorBlackBackgroundFilter;
-import com.villagomezdiaz.utilities.DirectoryScanner;
+import com.villagomezdiaz.common.DirectoryScanner;
 
 public class BackgroundBlacker {
 
