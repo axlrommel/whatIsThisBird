@@ -42,8 +42,7 @@ public class ImageCorrelation {
 		this.blueCorr = corr.correlation(statImg1.getBlues(), statImg2.getBlues());
 		
 		this.overallCorr = redCorr + greenCorr + blueCorr + lowRedCorr + lowGreenCorr +
-				lowBlueCorr + highRedCorr + highGreenCorr + highBlueCorr;	
-		
+				lowBlueCorr + highRedCorr + highGreenCorr + highBlueCorr;		
 		
 	}
 		
@@ -62,7 +61,7 @@ public class ImageCorrelation {
 		return ((this.highRedCorr + this.highGreenCorr + this.highBlueCorr)/3);
 	}
 
-	public double getOverallCorrelation() {
+	public double getThreeColorCorrelation() {
 		
 		return ((this.redCorr + this.greenCorr + this.blueCorr)/3);
 	}
