@@ -77,8 +77,8 @@ public class ImageComparer {
 				 
 				 ImageCorrelation corr = new ImageCorrelation(inputStat,fStat);
 
-				 if(corr.getOverallCorrelation() > 0.6) {
-					 jedis.zadd("overall-corr", corr.getOverallCorrelation(), list1.get(i));
+				 if(corr.getThreeColorCorrelation() > 0.6) {
+					 jedis.zadd("threecolor-corr", corr.getThreeColorCorrelation(), list1.get(i));
 				 }
 				 
 				 if(corr.getLowColorCorrelation() > 0.6) {
@@ -115,7 +115,7 @@ public class ImageComparer {
 			 }
 		     
 		     // let's get the top 6 for each, remove the rest
-		     jedis.zremrangeByRank("overall-corr", 0, -6);
+		     jedis.zremrangeByRank("threecolor-corr", 0, -6);
 		     jedis.zremrangeByRank("low-corr", 0, -6);
 		     jedis.zremrangeByRank("high-corr", 0, -6);
 		     jedis.zremrangeByRank("red-corr", 0, -6);
@@ -126,7 +126,7 @@ public class ImageComparer {
 		     jedis.zremrangeByRank("magenta-corr", 0, -6);
 			 
 		     // union all, will add the scores if on two or more keys
-		     jedis.zunionstore("all-corr", "overall-corr","low-corr","high-corr","red-corr","green-corr","blue-corr","yellow-corr",
+		     jedis.zunionstore("all-corr", "threecolor-corr","low-corr","high-corr","red-corr","green-corr","blue-corr","yellow-corr",
 		    		 "cyan-corr", "magenta-corr");
 		     
 		     // let's print out the unique ones and its score
@@ -136,7 +136,7 @@ public class ImageComparer {
 		     }
 		     
 		     // let's remove the keys
-		     jedis.del("all-corr", "overall-corr","low-corr","high-corr","red-corr","green-corr","blue-corr","yellow-corr",
+		     jedis.del("all-corr", "threecolor-corr","low-corr","high-corr","red-corr","green-corr","blue-corr","yellow-corr",
 		    		 "cyan-corr", "magenta-corr");
 
 		}
