@@ -2,12 +2,11 @@ package com.villagomezdiaz.utilities;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.nio.ByteBuffer;
 import java.util.List;
 
 import javax.imageio.ImageIO;
 
-import com.villagomezdiaz.utilities.DirectoryScanner;
+import com.villagomezdiaz.common.DirectoryScanner;
 import com.villagomezdiaz.common.ImageStatistics;
 
 import redis.clients.jedis.Jedis;
