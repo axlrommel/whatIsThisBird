@@ -16,6 +16,7 @@ public class ImageCorrelation {
 	double redCorr = 0;
 	double greenCorr = 0;
 	double blueCorr = 0;
+	double overallCorr = 0;
 	
 	
 	public ImageCorrelation(ImageStatistics statImg1, ImageStatistics statImg2) {
@@ -27,10 +28,11 @@ public class ImageCorrelation {
 		this.lowGreenCorr = corr.correlation(statImg1.getLowGreens(), statImg2.getLowGreens());
 		this.lowBlueCorr = corr.correlation(statImg1.getLowBlues(), statImg2.getLowBlues());
 		
+		/*
 		this.midRedCorr =  corr.correlation(statImg1.getMidReds(), statImg2.getMidReds());
 		this.midGreenCorr = corr.correlation(statImg1.getMidGreens(), statImg2.getMidGreens());
 		this.midBlueCorr = corr.correlation(statImg1.getMidBlues(), statImg2.getMidBlues());
-		
+		*/
 		this.highRedCorr =  corr.correlation(statImg1.getHighReds(), statImg2.getHighReds());
 		this.highGreenCorr = corr.correlation(statImg1.getHighGreens(), statImg2.getHighGreens());
 		this.highBlueCorr = corr.correlation(statImg1.getHighBlues(), statImg2.getHighBlues());
@@ -38,6 +40,9 @@ public class ImageCorrelation {
 		this.redCorr =  corr.correlation(statImg1.getReds(), statImg2.getReds());
 		this.greenCorr = corr.correlation(statImg1.getGreens(), statImg2.getGreens());
 		this.blueCorr = corr.correlation(statImg1.getBlues(), statImg2.getBlues());
+		
+		this.overallCorr = redCorr + greenCorr + blueCorr + lowRedCorr + lowGreenCorr +
+				lowBlueCorr + highRedCorr + highGreenCorr + highBlueCorr;	
 		
 		
 	}
@@ -90,6 +95,10 @@ public class ImageCorrelation {
 	public double getMagentaColorCorrelation() {
 
 		return ((this.highRedCorr + this.lowGreenCorr + this.highBlueCorr)/3);
+	}
+
+	public double getOverallCorr() {
+		return overallCorr;
 	}
 	
 	
