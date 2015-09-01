@@ -31,6 +31,11 @@ public class JedisImageListPopulate {
 				 int pos = f.getParent().lastIndexOf("/");
 				 String dir = f.getParent().substring(pos + 1);
 				 String fname = dir + "/" + f.getName();
+				 int p = fname.indexOf("/");
+		    	 int p1 = fname.indexOf(".");
+		    	 String bird = fname.substring(p1 + 1, p).replaceAll("_", " ");
+		    	 
+		    	 jedis.sadd("birds", bird);
 				 jedis.rpush("images", fname);
 				 String rName = "r-" + fname;
 				 String gName = "g-" + fname;
@@ -63,21 +68,21 @@ public class JedisImageListPopulate {
 			 }
 			 
 	      
-//	     // Get the stored data and print it
-	     List<String> list1 = jedis.lrange("images", 0 ,5);
-	     for(int i=0; i<list1.size(); i++) {
-	       System.out.println("Stored string in redis:: "+list1.get(i));
-	       String redList = "r-" + list1.get(i);
-	       
-	       //List<byte[]> list2 = jedis.lrange(redList.getBytes(),0,5);
-	       List<String> list2 = jedis.lrange(redList, 0,5);
-	       for(int j = 0; j < list2.size(); j++) {
-	    	   System.out.println(list2.get(j));
-	    	   //System.out.println(ByteBuffer.wrap(list2.get(j)).getDouble());
-	    	   //+ " " + list3.get(j));
-	       }
-	       
-	     }
+	     // Get the stored data and print it
+			/*List<String> list1 = jedis.lrange("images", 0, 5);
+			for (int i = 0; i < list1.size(); i++) {
+				System.out.println("Stored string in redis:: " + list1.get(i));
+				String redList = "r-" + list1.get(i);
+
+				// List<byte[]> list2 = jedis.lrange(redList.getBytes(),0,5);
+				List<String> list2 = jedis.lrange(redList, 0, 5);
+				for (int j = 0; j < list2.size(); j++) {
+					System.out.println(list2.get(j));
+					// System.out.println(ByteBuffer.wrap(list2.get(j)).getDouble());
+					// + " " + list3.get(j));
+				}
+
+			}*/
 	     
 	     
 	      }
