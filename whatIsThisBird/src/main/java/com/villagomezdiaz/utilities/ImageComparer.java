@@ -35,6 +35,12 @@ public class ImageComparer {
 	}
 		
 	
+	public ImageComparer() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+
 	public BirdMatchingResults getMatchingResults(String inputBird) {
 		
 		BirdMatchingResults results = new BirdMatchingResults();
@@ -128,7 +134,7 @@ public class ImageComparer {
 				 }
 			 }
 		     
-		     // let's get the top 6 for each, remove the rest
+		     // let's get the top 10 for each, remove the rest
 		     jedis.zremrangeByRank("threecolor-corr", 0, -maxMatches + 1);
 		     jedis.zremrangeByRank("low-corr", 0, -maxMatches + 1);
 		     jedis.zremrangeByRank("high-corr", 0,  -maxMatches + 1);
@@ -140,8 +146,8 @@ public class ImageComparer {
 		     jedis.zremrangeByRank("magenta-corr", 0,  -maxMatches + 1);
 			 
 		     // union all, will add the scores if on two or more keys
-		     jedis.zunionstore("all-corr", "threecolor-corr","low-corr","high-corr","red-corr","green-corr","blue-corr","yellow-corr",
-		    		 "cyan-corr", "magenta-corr");
+		     jedis.zunionstore("all-corr", "threecolor-corr","low-corr","high-corr","red-corr","green-corr","blue-corr",
+		    		 "yellow-corr", "cyan-corr", "magenta-corr");
 		     
 		     // let's print out the unique ones and its score
 		     Set<String> qq = jedis.zrevrange("all-corr", 0, -1);
@@ -197,9 +203,8 @@ public class ImageComparer {
 		    	 
 		    	 int p = s.indexOf(".");
 		    	 int p1 = s.indexOf("/");
-		    	 String birdName = s.substring(p + 1, p1);
-		    	 String b = birdName.replaceAll("_", " ");
-		    	 BirdsResults br = new BirdsResults(b, s, jedis.zscore("all-corr", s), fResults);
+		    	 String birdName = s.substring(p + 1, p1).replaceAll("_", " ");
+		    	 BirdsResults br = new BirdsResults(birdName, s, jedis.zscore("all-corr", s), fResults);
 		    	 bResults.add(br);
 		     }
 		     
