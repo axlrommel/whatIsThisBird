@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.PrintWriter;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,8 +18,10 @@ import com.villagomezdiaz.common.ImageStatistics;
 import com.villagomezdiaz.common.ds.BirdMatchingResults;
 import com.villagomezdiaz.common.ds.BirdsResults;
 import com.villagomezdiaz.common.ds.FilterResults;
+import com.villagomezdiaz.common.filters.JedisFilter;
 
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.ZParams;
 
 public class ImageComparer {
 
@@ -79,7 +82,10 @@ public class ImageComparer {
 			 ImageIO.write(imageTmp1, "jpg", output);
 			 
 			 Long numSpecies = jedis.scard("birds");
-				
+			 
+			 //let's populate the filters
+			 ArrayList<JedisFilter> filters = initFilters();
+			 			
 			 List<String> list1 = jedis.lrange("images", 0 ,-1);
 			 int numImages = list1.size();
 		     for(int i=0; i<list1.size(); i++) {
@@ -135,19 +141,19 @@ public class ImageComparer {
 			 }
 		     
 		     // let's get the top 10 for each, remove the rest
-		     jedis.zremrangeByRank("threecolor-corr", 0, -maxMatches + 1);
-		     jedis.zremrangeByRank("low-corr", 0, -maxMatches + 1);
-		     jedis.zremrangeByRank("high-corr", 0,  -maxMatches + 1);
-		     jedis.zremrangeByRank("red-corr", 0,  -maxMatches + 1);
-		     jedis.zremrangeByRank("green-corr", 0,  -maxMatches + 1);
-		     jedis.zremrangeByRank("blue-corr", 0,  -maxMatches + 1);
-		     jedis.zremrangeByRank("yellow-corr", 0,  -maxMatches + 1);
-		     jedis.zremrangeByRank("cyan-corr", 0,  -maxMatches + 1);
-		     jedis.zremrangeByRank("magenta-corr", 0,  -maxMatches + 1);
-			 
-		     // union all, will add the scores if on two or more keys
-		     jedis.zunionstore("all-corr", "threecolor-corr","low-corr","high-corr","red-corr","green-corr","blue-corr",
-		    		 "yellow-corr", "cyan-corr", "magenta-corr");
+		     
+		    
+		     for( JedisFilter jf : filters) {
+		    	 jedis.zremrangeByRank(jf.getFilterName(), 0, -maxMatches + 1);
+		    	 //jedis.zunionstore("all-corr",z,jf.getFilterName());
+		     }
+		     
+		     
+		     //can't do unionstore in the for loop to aggregate, we need to do it here, let's get the max
+		     ZParams z = new ZParams();
+		     z.aggregate(ZParams.Aggregate.MAX);
+		     jedis.zunionstore("all-corr", z, "threecolor-corr", "high-corr", "low-corr", "red-corr", "green-corr",
+		    		 "blue-corr","yellow-corr", "cyan-corr", "magenta-corr");
 		     
 		     // let's print out the unique ones and its score
 		     Set<String> qq = jedis.zrevrange("all-corr", 0, -1);
@@ -155,50 +161,13 @@ public class ImageComparer {
 		     for(String s : qq) {
 		    	 Set<FilterResults> fResults = new HashSet<FilterResults>();
 		    	 System.out.println(s + " all-corr " + jedis.zscore("all-corr", s));
-		    	 if(jedis.zscore("threecolor-corr",s) != null) {
-		    		 FilterResults fr = new FilterResults("threecolor-corr",jedis.zscore("threecolor-corr", s));
-		    		 fResults.add(fr);
-		    		 System.out.println("\t" + s + " threecolor-corr " + jedis.zscore("threecolor-corr", s));
-		    	 }
-		    	 if(jedis.zscore("low-corr",s) != null) {
-		    		 FilterResults fr = new FilterResults("low-corr",jedis.zscore("low-corr", s));
-		    		 fResults.add(fr);
-		    		 System.out.println("\t" + s + " low-corr " + jedis.zscore("low-corr", s));
-		    	 }
-		    	 if(jedis.zscore("high-corr",s) != null) {
-		    		 FilterResults fr = new FilterResults("high-corr",jedis.zscore("high-corr", s));
-		    		 fResults.add(fr);
-		    		 System.out.println("\t" + s + " high-corr " + jedis.zscore("high-corr", s));
-		    	 }
-		    	 if(jedis.zscore("red-corr",s) != null) {
-		    		 FilterResults fr = new FilterResults("red-corr",jedis.zscore("red-corr", s));
-		    		 fResults.add(fr);
-		    		 System.out.println("\t" + s + " red-corr " + jedis.zscore("red-corr", s));
-		    	 }
-		    	 if(jedis.zscore("green-corr",s) != null) {
-		    		 FilterResults fr = new FilterResults("green-corr",jedis.zscore("green-corr", s));
-		    		 fResults.add(fr);
-		    		 System.out.println("\t" + s + " green-corr " + jedis.zscore("green-corr", s));
-		    	 }
-		    	 if(jedis.zscore("blue-corr",s) != null) {
-		    		 FilterResults fr = new FilterResults("blue-corr",jedis.zscore("blue-corr", s));
-		    		 fResults.add(fr);
-		    		 System.out.println("\t" + s + " blue-corr " + jedis.zscore("blue-corr", s));
-		    	 }
-		    	 if(jedis.zscore("yellow-corr",s) != null) {
-		    		 FilterResults fr = new FilterResults("yellow-corr",jedis.zscore("yellow-corr", s));
-		    		 fResults.add(fr);
-		    		 System.out.println("\t" + s + " yellow-corr " + jedis.zscore("yellow-corr", s));
-		    	 }
-		    	 if(jedis.zscore("cyan-corr",s) != null) {
-		    		 FilterResults fr = new FilterResults("cyan-corr",jedis.zscore("cyan-corr", s));
-		    		 fResults.add(fr);
-		    		 System.out.println("\t" + s + " cyan-corr " + jedis.zscore("cyan-corr", s));
-		    	 }
-		    	 if(jedis.zscore("magenta-corr",s) != null) {
-		    		 FilterResults fr = new FilterResults("magenta-corr",jedis.zscore("magenta-corr", s));
-		    		 fResults.add(fr);
-		    		 System.out.println("\t" + s + " magenta-corr " + jedis.zscore("magenta-corr", s));
+		    	 for( JedisFilter jf : filters) {
+		    		 if(jedis.zscore(jf.getFilterName(),s) != null) {
+		    			 FilterResults fr = new FilterResults(jf.getFilterName(), jedis.zscore(jf.getFilterName(),s));
+		    			 fResults.add(fr);
+		    			 System.out.println("\t" + s + " " + jf.getFilterName() + " " 
+		    					 + jedis.zscore(jf.getFilterName(), s));
+		    		 }
 		    	 }
 		    	 
 		    	 int p = s.indexOf(".");
@@ -212,9 +181,11 @@ public class ImageComparer {
 		     results.setNumBirds(numImages);
 		     results.setbResults(bResults);
 		     
-		     // let's remove the keys
-		     jedis.del("all-corr", "threecolor-corr","low-corr","high-corr","red-corr","green-corr","blue-corr","yellow-corr",
-		    		 "cyan-corr", "magenta-corr");
+		     // let's remove the temporary keys
+		     for( JedisFilter jf : filters) {
+		    	 jedis.del(jf.getFilterName());
+		     }
+		     jedis.del("all-corr");
 
 		}
 		catch (Exception e) {
@@ -227,5 +198,28 @@ public class ImageComparer {
 		
 	}
 
+	private ArrayList<JedisFilter> initFilters() {
+		ArrayList<JedisFilter> filters = new ArrayList<JedisFilter>();
+		 
+		 filters.add(new JedisFilter("threecolor-corr"));
+
+		 filters.add(new JedisFilter("low-corr"));
+		 
+		 filters.add(new JedisFilter("high-corr"));
+
+		 filters.add(new JedisFilter("red-corr"));
+
+		 filters.add(new JedisFilter("green-corr"));
+
+		 filters.add(new JedisFilter("blue-corr"));
+
+		 filters.add(new JedisFilter("yellow-corr"));
+
+		 filters.add(new JedisFilter("cyan-corr"));
+
+		 filters.add(new JedisFilter("magenta-corr"));
+		 
+		 return filters;
+	}
 }
 
