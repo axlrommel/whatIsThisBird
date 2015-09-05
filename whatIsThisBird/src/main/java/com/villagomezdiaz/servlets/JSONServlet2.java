@@ -29,12 +29,8 @@ public class JSONServlet2 extends HttpServlet {
         response.setContentType("application/json");            
  
         
-        String buttonID = request.getParameter("button-id");
-        switch (buttonID) {
-        case "info":
-        	mapper.writeValue(response.getOutputStream(), getBirdsAndSources());
-        	break;
-        }
+        mapper.writeValue(response.getOutputStream(), getBirdsAndSources());
+        
 	}
     
     private BirdAndSource getBirdsAndSources() {
