@@ -351,6 +351,45 @@ var CROP = (function () {
 			this.imgResize(slideval);
 		};
 
+		
+		this.upload = function (width, height, type, link) {
+
+			$.ajax({
+				type: "POST",
+				url: "JSONServlet2",
+				data: this.crop(width, height, type),
+				error: function (jqXHR, exception) {
+		            var msg = '';
+		            if (jqXHR.status === 0) {
+		                msg = 'Not connect.\n Verify Network.';
+		            } else if (jqXHR.status == 404) {
+		                msg = 'Requested page not found. [404]';
+		            } else if (jqXHR.status == 500) {
+		                msg = 'Internal Server Error [500].';
+		            } else if (exception === 'parsererror') {
+		                msg = 'Requested JSON parse failed.';
+		            } else if (exception === 'timeout') {
+		                msg = 'Time out error.';
+		            } else if (exception === 'abort') {
+		                msg = 'Ajax request aborted.';
+		            } else {
+		                msg = 'Uncaught Error, really!.\n' + jqXHR.responseText;
+		            }
+		            alert(msg);
+		        },
+		      	success: function(data) {
+		      		var items = [];
+			      	  $.each( data, function( key, val ) {
+			      	    items.push( "<li id='" + key + "'>" + val + "</li>" );
+			      	  });
+			      	 
+			      	  $( "<ul/>", {
+			      	    "class": "my-new-list",
+			      	    html: items.join( "" )
+			      	  }).appendTo( "body" );
+			    }
+		   });
+		};
 
 
 		//  return cropped data: coordinates & base64 string
