@@ -8,7 +8,7 @@
 	<link href='http://fonts.googleapis.com/css?family=Bitter|Cantora+One|PT+Serif:400,700' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" type="text/css" href="css/example.css">
 	<link rel="stylesheet" type="text/css" href="css/crop.css">
-	<script src="js/jquery.min.js"></script>
+ 	<script src="js/jquery.min.js"></script>
 	<script src="js/syntaxhighlight.js"></script>
 	<script src="js/crop.js"></script>
 </head>
@@ -30,8 +30,9 @@
 		<li onclick="foo.rotate();">Rotate</li>
 		<li class="maskbg">Mask</li>
 		<li><a id="unqiueID" onclick="foo.download(300, 300, 'test', 'png', this.id);" href="#">Download</a></li>
-		<li onclick="console.log(foo.crop(300,300,'png'))" data-tooltip="Prints object to console">Crop</li>
-		<li onclick="console.log(foo.original())" data-tooltip="Prints object to console">Original</li>
+		<li onclick="foo.upload(300, 300, 'jpeg', this.id);">Upload</li>
+<!-- 		<li onclick="console.log(foo.crop(300,300,'png'))" data-tooltip="Prints object to console">Crop</li> -->
+<!-- 		<li onclick="console.log(foo.original())" data-tooltip="Prints object to console">Original</li> -->
 	</ul>
 
 	<!-- preview container element -->
@@ -102,9 +103,7 @@
 
 
 	</script>
-
 	<div class="how">
-	<a class="btn" href="http://codecanyon.net/item/image-crop/5348464?ref=rabona">Buy for $10 at CodeCanyon</a>
 
 
 		<h4>Usage</h4>
@@ -281,11 +280,11 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
 	<h4>CSS</h4>
 	<p>The zoom slider is input[type="range"], that's all it is. <a href="http://codepen.io/search?q=input+range&limit=all&depth=everything&show_forks=false">Styling it is a piece of cake</a>.</p>
 
-	<a class="btn" href="http://codecanyon.net/item/image-crop/5348464?ref=rabona">Buy for $10 at CodeCanyon</a>
 
 	<script>
 		prettyPrint();
 	</script>
+	
 
 </body>
 </html>
