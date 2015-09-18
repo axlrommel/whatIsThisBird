@@ -44,30 +44,44 @@ public class ImageComparer {
 	}
 
 
-	public BirdMatchingResults getMatchingResults(String inputBird) {
+	public BirdMatchingResults getMatchingResults (String inputBird) {
+		
+		BirdMatchingResults results = new BirdMatchingResults();
+		
+		try {
+		File input = new File(inputBird);
+		String fname1 = input.getName();
+		File cloneOutput = new File(outputSystemPath + fname1);
+		BufferedImage imageIn = ImageIO.read(input);
+		
+		 // copy the image
+		 Files.copy(input.toPath(), cloneOutput.toPath(), 
+				 java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+		 
+		 //using PosixFilePermission to set file permissions 755
+//	     FilePermissions.setFilePermissions(cloneOutput.toPath());
+//	        		        
+//		 cloneOutput.setReadable(true, true);
+//		 cloneOutput.setExecutable(true, true);
+		 
+		 System.out.println("input: " + outputHttpPath + fname1);
+		 
+		 results = getMatchingResults(imageIn, fname1);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return results;
+		
+	}
+	
+	public BirdMatchingResults getMatchingResults(BufferedImage imageIn, String filename) {
 		
 		BirdMatchingResults results = new BirdMatchingResults();
 		Jedis jedis = new Jedis("localhost");
 				
 		try {
-					
-			File input = new File(inputBird);
-			String fname1 = input.getName();
-			File cloneOutput = new File(outputSystemPath + fname1);
-			
-			 BufferedImage imageIn = ImageIO.read(input);
-			 
-			 // copy the image
-			 Files.copy(input.toPath(), cloneOutput.toPath(), 
-					 java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-			 
-			 //using PosixFilePermission to set file permissions 755
-//		     FilePermissions.setFilePermissions(cloneOutput.toPath());
-//		        		        
-//			 cloneOutput.setReadable(true, true);
-//			 cloneOutput.setExecutable(true, true);
-			 
-			 System.out.println("input: " + outputHttpPath + fname1);
 			 
 			 ColorBlackBackgroundFilter filter = new ColorBlackBackgroundFilter(50);
 			 BufferedImage imageTmp = filter.imageConvertToBlackBackgroundFromAll(imageIn);
@@ -78,8 +92,7 @@ public class ImageComparer {
 			 ImageStatistics inputStat = new ImageStatistics(imageTmp1);
 			 //System.out.println(inputStat.getTopRedsAsString() + " " + inputStat.getTopGreensAsString() + " " +
 			//		 inputStat.getTopBluesAsString());
-			 File output = new File(outputSystemPath + "T" + fname1);
-			 ImageIO.write(imageTmp1, "jpg", output);
+			 ImageIO.write(imageTmp1, "jpg", new File(outputSystemPath + "T" + filename));
 			 
 			 Long numSpecies = jedis.scard("birds");
 			 
