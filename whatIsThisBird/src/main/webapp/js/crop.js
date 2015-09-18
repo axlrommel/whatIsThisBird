@@ -357,7 +357,7 @@ var CROP = (function () {
 			$.ajax({
 				type: "POST",
 				url: "JSONServlet2",
-				data: this.crop(width, height, type),
+				data: this.cropAndUpload(width, height, type),
 				error: function (jqXHR, exception) {
 		            var msg = '';
 		            if (jqXHR.status === 0) {
@@ -379,11 +379,15 @@ var CROP = (function () {
 		        },
 		      	success: function(data) {
 		      		var items = [];
-			      	  $.each( data, function( key, val ) {
-			      	    items.push( "<li id='" + key + "'>" + val + "</li>" );
-			      	  });
-			      	 
-			      	  $( "<ul/>", {
+		      		items.push( "<li id='number of birds'>" + data.numBirds + "</li>" );
+		      		items.push( "<li id='number of species'>" + data.numSpecies + "</li>" );
+		      		for (var i = 0; i < data.bResults.length; i++) {
+		      		    var counter = data.bResults[i];
+		      		    items.push( "<li id='bird name'>" + counter.birdName + "</li>" );
+			      		items.push( "<li id='path'>" + counter.path + "</li>" );
+			      		items.push( "<li id='score'>" + counter.overallScore + "</li>" );
+		      		}
+		      		$( "<ul/>", {
 			      	    "class": "my-new-list",
 			      	    html: items.join( "" )
 			      	  }).appendTo( "body" );
@@ -423,7 +427,7 @@ var CROP = (function () {
 
 		};
 
-
+	
 
 		//  return original data: coordinates & base64 string
 		// --------------------------------------------------------------------------
@@ -531,6 +535,35 @@ var CROP = (function () {
 		};
 
 
+		this.cropAndUpload = function(width, height, type) {
+			
+			var self = this,
+			imgInfo = self.imgInfo,
+			c = self.eles.container,
+			img = self.eles.img;
+
+			var original = new Image();
+				original.src = img.attr('src');
+	
+			// draw image to canvas
+			var canvas = document.createElement('canvas');
+				canvas.width = width;
+				canvas.height = height;
+	
+			var w = Math.round(c.width() * (imgInfo.aw / (imgInfo.w * imgInfo.s))),
+				h = Math.round(c.height() * (imgInfo.ah / (imgInfo.h * imgInfo.s))),
+				x = Math.round(-(parseInt(img.css('left'))) * (imgInfo.aw / (imgInfo.w * imgInfo.s))),
+				y = Math.round(-(parseInt(img.css('top'))) * (imgInfo.ah / (imgInfo.h * imgInfo.s)));
+	
+			canvas.getContext('2d').drawImage(original, x, y, w, h, 0, 0, width, height);
+		
+			return {
+				width: width,
+				height: height,
+				type: type || 'jpeg',
+				string: canvas.toDataURL("image/" + type || 'jpeg'),
+			};
+		}
 
 		//  download image
 		// --------------------------------------------------------------------------
