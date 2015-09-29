@@ -381,12 +381,18 @@ var CROP = (function () {
 		      		var items = [];
 		      		items.push( "<li id='number of birds'>" + data.numBirds + "</li>" );
 		      		items.push( "<li id='number of species'>" + data.numSpecies + "</li>" );
+		      		
+		      	// sort high to low
+		      		data.bResults.sort(sort_by('overallScore',true,parseFloat));
 		      		for (var i = 0; i < data.bResults.length; i++) {
 		      		    var counter = data.bResults[i];
-		      		    items.push( "<li id='bird name'>" + counter.birdName + "</li>" );
-			      		items.push( "<li id='path'>" + counter.path + "</li>" );
-			      		items.push( "<li id='score'>" + counter.overallScore + "</li>" );
+		      		    items.push("<div>");
+		      		    items.push("<img u='image' src='img/croppedImages/" + counter.path + "'");
+		      		    items.push("<div u=caption class='captionOrange'  style='position:absolute; left:20px; bottom: 20px; width:200px; height:30px;'>" 
+		      		    		+ counter.birdName + "</div>");
+			      		items.push("</div>");
 		      		}
+
 		      		$( "<ul/>", {
 			      	    "class": "my-new-list",
 			      	    html: items.join( "" )
@@ -395,7 +401,20 @@ var CROP = (function () {
 		   });
 		};
 
+		//sort array
+		var sort_by = function(field, reverse, primer){
 
+			   var key = primer ? 
+			       function(x) {return primer(x[field])} : 
+			       function(x) {return x[field]};
+
+			   reverse = !reverse ? 1 : -1;
+
+			   return function (a, b) {
+			       return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
+			     } 
+			}
+		
 		//  return cropped data: coordinates & base64 string
 		// --------------------------------------------------------------------------
 
