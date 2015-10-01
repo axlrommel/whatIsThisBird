@@ -379,24 +379,56 @@ var CROP = (function () {
 		        },
 		      	success: function(data) {
 		      		var items = [];
-		      		items.push( "<li id='number of birds'>" + data.numBirds + "</li>" );
-		      		items.push( "<li id='number of species'>" + data.numSpecies + "</li>" );
+		      		//items.push( "<li id='number of birds'>" + data.numBirds + "</li>" );
+		      		//items.push( "<li id='number of species'>" + data.numSpecies + "</li>" );
 		      		
+		      		// remove all images
+		      		$( ".main_slider" ).remove();
+		      		var mSlider = document.createElement("div");
+		      		mSlider.className = "main_slider";
+		      		mSlider.u = "slides";
+		      		mSlider.style.cursor = "move";
+		      		mSlider.style.position = "absolute";
+		      		mSlider.style.left = "0px";
+		      		mSlider.style.top = "0px";
+		      		mSlider.style.width = "300px";
+		      		mSlider.style.height = "600px";
+		      		mSlider.style.overflow = "hidden";
+		      		document.getElementsByClassName("container_slider")[0].appendChild(mSlider);
 		      	// sort high to low
 		      		data.bResults.sort(sort_by('overallScore',true,parseFloat));
 		      		for (var i = 0; i < data.bResults.length; i++) {
 		      		    var counter = data.bResults[i];
-		      		    items.push("<div>");
-		      		    items.push("<img u='image' src='img/croppedImages/" + counter.path + "'");
-		      		    items.push("<div u=caption class='captionOrange'  style='position:absolute; left:20px; bottom: 20px; width:200px; height:30px;'>" 
-		      		    		+ counter.birdName + "</div>");
-			      		items.push("</div>");
+		      		    
+		      		    var iDiv = document.createElement('div');
+			      		iDiv.className = 'individual_image';
+			      		document.getElementsByClassName("main_slider")[0].appendChild(iDiv);
+			      		
+			      		var img = document.createElement('img');
+			      		img.u = 'image';
+			      		img.src = 'img/croppedImages/' + counter.path;
+			      		iDiv.appendChild(img);
+			      		
+			      		var iDiv1 = document.createElement('div');
+			      		iDiv1.u = "caption";
+			      		iDiv1.className = "captionOrange";
+			      		iDiv1.style.position = "absolute";
+			      		iDiv1.style.left = "20px";
+			      		iDiv1.style.bottom = "20px";
+			      		iDiv1.style.width = "200px";
+			      		iDiv1.style.height = "30px";
+			      		iDiv.appendChild(iDiv1);
+		      		    //items.push("<div>");
+		      		    //items.push("<img u='image' src='img/croppedImages/" + counter.path + "'>");
+		      		    //items.push("<div u=caption class='captionOrange'  style='position:absolute; left:20px; bottom: 20px; width:200px; height:30px;'>" 
+		      		    //		+ counter.birdName + "</div>");
+			      		//items.push("</div>");
 		      		}
 
-		      		$( "<ul/>", {
-			      	    "class": "my-new-list",
-			      	    html: items.join( "" )
-			      	  }).appendTo( "body" );
+		      		//$( "<ul/>", {
+			      	//    "class": "pict",
+			      	//    html: items.join( "" )
+			      	//  }).appendTo( "body" );
 			    }
 		   });
 		};
