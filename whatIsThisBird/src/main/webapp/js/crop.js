@@ -351,6 +351,57 @@ var CROP = (function () {
 			this.imgResize(slideval);
 		};
 
+		var sliderSetup = function(numItems) {
+			var change_img_time = 4000,
+			transition_speed = 400;
+
+			var listItems = $("#slider").children('li'),
+			dotItems = $('#dots').children('li'),
+			listLen = numItems,
+			current,
+			changeTimeout;
+
+			function moveTo(newIndex){
+				
+				var i = newIndex;
+
+			    if (newIndex == 'prev') {
+			        i = (current > 0) ? (current - 1) : (listLen - 1);
+			    }
+
+			    if (newIndex == 'next') {
+			        i = (current < listLen - 1) ? (current + 1) : 0;
+			    }
+
+			    dotItems.removeClass('active')
+			            .eq(i).addClass('active');
+
+			    listItems.fadeOut(transition_speed)
+			             .eq(i).fadeIn(transition_speed);
+
+			    current = i;
+
+			    //resets time interval if user clicks on slider dot; then begin automated slider
+			    clearTimeout(changeTimeout);
+			    changeTimeout = setTimeout(function() { moveTo('next'); }, change_img_time);
+			}
+			
+			// Event handlers
+			$("#dots li").click(function () {
+			var i = $('#dots li').index(this);
+			moveTo(i);
+			});
+
+			$("#prev").click(function () {
+			moveTo('prev');
+			});
+
+			$("#next").click(function () {
+			moveTo('next');
+			});
+			
+			moveTo('next');
+		};
 		
 		this.upload = function (width, height, type, link) {
 
@@ -379,60 +430,65 @@ var CROP = (function () {
 		        },
 		      	success: function(data) {
 		      		var items = [];
-		      		//items.push( "<li id='number of birds'>" + data.numBirds + "</li>" );
-		      		//items.push( "<li id='number of species'>" + data.numSpecies + "</li>" );
+		      		items.push( "<li>number of birds " + data.numBirds + "</li>" );
+		      		items.push( "<li>number of species " + data.numSpecies + "</li>" );
+		      		$( "<ul/>", {
+			      	    "class": "pict",
+			      	    html: items.join( "" )
+			      	  }).appendTo( "body" );
 		      		
-		      		// remove all images
-		      		$( ".main_slider" ).remove();
-		      		var mSlider = document.createElement("div");
-		      		mSlider.className = "main_slider";
-		      		mSlider.u = "slides";
-		      		mSlider.style.cursor = "move";
-		      		mSlider.style.position = "absolute";
-		      		mSlider.style.left = "0px";
-		      		mSlider.style.top = "0px";
-		      		mSlider.style.width = "300px";
-		      		mSlider.style.height = "600px";
-		      		mSlider.style.overflow = "hidden";
-		      		document.getElementsByClassName("container_slider")[0].appendChild(mSlider);
-		      	// sort high to low
+		      		// remove all child nodes from container
+		      		var mContainer = document.getElementsByClassName("container")[0];
+		      		while (mContainer.firstChild) {
+		      			mContainer.removeChild(mContainer.firstChild);
+		      		}
+		      		
+		      		//create slider and dots elements and add to container
+		      		var mSlider = document.createElement("ul");
+		      		mSlider.id = "slider";
+		      		mContainer.appendChild(mSlider);
+		      		
+		      		var mDots = document.createElement("ul");
+		      		mDots.id = "dots";
+		      		mContainer.appendChild(mDots);
+		      		
+		      		var button1 = document.createElement("button");
+		      		button1.id = "prev";
+		      		var txt1 = document.createTextNode("Prev");
+		      		button1.appendChild(txt1);
+		      		mContainer.appendChild(button1);
+		      		
+		      		var button2 = document.createElement("button");
+		      		button2.id = "next";
+		      		var txt2 = document.createTextNode("Next");
+		      		button2.appendChild(txt2);
+		      		mContainer.appendChild(button2);
+		      		
+		      		// sort results high to low
 		      		data.bResults.sort(sort_by('overallScore',true,parseFloat));
 		      		for (var i = 0; i < data.bResults.length; i++) {
 		      		    var counter = data.bResults[i];
-		      		    
-		      		    var iDiv = document.createElement('div');
-			      		iDiv.className = 'individual_image';
-			      		document.getElementsByClassName("main_slider")[0].appendChild(iDiv);
+			      		var li = document.createElement("li");
 			      		
 			      		var img = document.createElement('img');
-			      		img.u = 'image';
 			      		img.src = 'img/croppedImages/' + counter.path;
-			      		iDiv.appendChild(img);
+			      		img.alt = counter.birdName;
+			      		li.appendChild(img);
+			      		mSlider.appendChild(li);
 			      		
-			      		var iDiv1 = document.createElement('div');
-			      		iDiv1.u = "caption";
-			      		iDiv1.className = "captionOrange";
-			      		iDiv1.style.position = "absolute";
-			      		iDiv1.style.left = "20px";
-			      		iDiv1.style.bottom = "20px";
-			      		iDiv1.style.width = "200px";
-			      		iDiv1.style.height = "30px";
-			      		iDiv.appendChild(iDiv1);
-		      		    //items.push("<div>");
-		      		    //items.push("<img u='image' src='img/croppedImages/" + counter.path + "'>");
-		      		    //items.push("<div u=caption class='captionOrange'  style='position:absolute; left:20px; bottom: 20px; width:200px; height:30px;'>" 
-		      		    //		+ counter.birdName + "</div>");
-			      		//items.push("</div>");
+			      		var li1 = document.createElement("li");
+			      		if(i == 0) {
+			      			li1.className = "active";
+			      		}
+			      		mDots.appendChild(li1);
+			      		
 		      		}
-
-		      		//$( "<ul/>", {
-			      	//    "class": "pict",
-			      	//    html: items.join( "" )
-			      	//  }).appendTo( "body" );
+		      		// need to be called in the success function of ajax because of ajax being asynch
+		      		sliderSetup(data.bResults.length);
 			    }
 		   });
 		};
-
+		
 		//sort array
 		var sort_by = function(field, reverse, primer){
 
