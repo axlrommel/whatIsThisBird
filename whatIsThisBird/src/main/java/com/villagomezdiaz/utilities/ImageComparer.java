@@ -49,6 +49,7 @@ public class ImageComparer {
 		BirdMatchingResults results = new BirdMatchingResults();
 		
 		try {
+		Jedis jedis = new Jedis("localhost");
 		File input = new File(inputBird);
 		String fname1 = input.getName();
 		File cloneOutput = new File(outputSystemPath + fname1);
@@ -66,7 +67,7 @@ public class ImageComparer {
 		 
 		 System.out.println("input: " + outputHttpPath + fname1);
 		 
-		 results = getMatchingResults(imageIn, fname1);
+		 results = getMatchingResults(imageIn, jedis, fname1);
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -76,137 +77,127 @@ public class ImageComparer {
 		
 	}
 	
-	public BirdMatchingResults getMatchingResults(BufferedImage imageIn, String filename) {
+	public BirdMatchingResults getMatchingResults(BufferedImage imageIn, 
+			Jedis jedis, String filename) throws Exception {
 		
-		BirdMatchingResults results = new BirdMatchingResults();
-		Jedis jedis = new Jedis("localhost");
-				
-		try {
+		 BirdMatchingResults results = new BirdMatchingResults();		
 			 
-			 ColorBlackBackgroundFilter filter = new ColorBlackBackgroundFilter(50);
-			 BufferedImage imageTmp = filter.imageConvertToBlackBackgroundFromAll(imageIn);
+		 ColorBlackBackgroundFilter filter = new ColorBlackBackgroundFilter(50);
+		 BufferedImage imageTmp = filter.imageConvertToBlackBackgroundFromAll(imageIn);
+		 
+		 //write temp image
+		 int newHeight = imageTmp.getHeight()*2/3;
+		 BufferedImage imageTmp1 = ImageUtils.getSubimage(imageTmp, 0, 0, imageTmp.getWidth(), newHeight);
+		 ImageStatistics inputStat = new ImageStatistics(imageTmp1);
+		 //System.out.println(inputStat.getTopRedsAsString() + " " + inputStat.getTopGreensAsString() + " " +
+		//		 inputStat.getTopBluesAsString());
+		 ImageIO.write(imageTmp1, "jpg", new File(outputSystemPath + "T" + filename));
+		 
+		 Long numSpecies = jedis.scard("birds");
+		 
+		 //let's create the filters
+		 ArrayList<JedisFilter> filters = initFilters();
+		 			
+		 List<String> list1 = jedis.lrange("images", 0 ,-1);
+		 int numImages = list1.size();
+	     for(int i=0; i<list1.size(); i++) {
+	    	 String redList = "r-" + list1.get(i);
+	    	 String greenList = "g-" + list1.get(i);
+	    	 String blueList = "b-" + list1.get(i);
+	    	 
+	    	 List<String> listR = jedis.lrange(redList, 0,-1);
+	    	 List<String> listG = jedis.lrange(greenList, 0,-1);
+	    	 List<String> listB = jedis.lrange(blueList, 0,-1);
+	    	 
+			 ImageStatistics fStat = new ImageStatistics(listR.toArray(new String[listR.size()]),
+					 listG.toArray(new String[listG.size()]),
+					 listB.toArray(new String[listB.size()]));
 			 
-			 //write temp image
-			 int newHeight = imageTmp.getHeight()*2/3;
-			 BufferedImage imageTmp1 = ImageUtils.getSubimage(imageTmp, 0, 0, imageTmp.getWidth(), newHeight);
-			 ImageStatistics inputStat = new ImageStatistics(imageTmp1);
-			 //System.out.println(inputStat.getTopRedsAsString() + " " + inputStat.getTopGreensAsString() + " " +
-			//		 inputStat.getTopBluesAsString());
-			 ImageIO.write(imageTmp1, "jpg", new File(outputSystemPath + "T" + filename));
-			 
-			 Long numSpecies = jedis.scard("birds");
-			 
-			 //let's populate the filters
-			 ArrayList<JedisFilter> filters = initFilters();
-			 			
-			 List<String> list1 = jedis.lrange("images", 0 ,-1);
-			 int numImages = list1.size();
-		     for(int i=0; i<list1.size(); i++) {
-		    	 String redList = "r-" + list1.get(i);
-		    	 String greenList = "g-" + list1.get(i);
-		    	 String blueList = "b-" + list1.get(i);
-		    	 
-		    	 List<String> listR = jedis.lrange(redList, 0,-1);
-		    	 List<String> listG = jedis.lrange(greenList, 0,-1);
-		    	 List<String> listB = jedis.lrange(blueList, 0,-1);
-		    	 
-				 ImageStatistics fStat = new ImageStatistics(listR.toArray(new String[listR.size()]),
-						 listG.toArray(new String[listG.size()]),
-						 listB.toArray(new String[listB.size()]));
-				 
-				 ImageCorrelation corr = new ImageCorrelation(inputStat,fStat);
+			 ImageCorrelation corr = new ImageCorrelation(inputStat,fStat);
 
-				 if(corr.getThreeColorCorrelation() > threshold) {
-					 jedis.zadd("threecolor-corr", corr.getThreeColorCorrelation(), list1.get(i));
-				 }
-				 
-				 if(corr.getLowColorCorrelation() > threshold) {
-					 jedis.zadd("low-corr", corr.getLowColorCorrelation(), list1.get(i));
-				 }
-				 
-				 if(corr.getHighColorCorrelation() > threshold) {
-					 jedis.zadd("high-corr", corr.getHighColorCorrelation(), list1.get(i));
-				 }
-				 
-				 if(corr.getRedColorCorrelation() > threshold) {
-					 jedis.zadd("red-corr", corr.getRedColorCorrelation(), list1.get(i));
-				 }
-				 
-				 if(corr.getGreenColorCorrelation() > threshold) {
-					 jedis.zadd("green-corr", corr.getGreenColorCorrelation(), list1.get(i));
-				 }
-				 
-				 if(corr.getBlueColorCorrelation() > threshold) {
-					 jedis.zadd("blue-corr", corr.getBlueColorCorrelation(), list1.get(i));
-				 }
-				 
-				 if(corr.getYellowColorCorrelation() > threshold) {
-					 jedis.zadd("yellow-corr", corr.getYellowColorCorrelation(), list1.get(i));
-				 }
-				 
-				 if(corr.getCyanColorCorrelation() > threshold) {
-					 jedis.zadd("cyan-corr", corr.getCyanColorCorrelation(), list1.get(i));
-				 }
-				 
-				 if(corr.getMagentaColorCorrelation() > threshold) {
-					 jedis.zadd("magenta-corr", corr.getMagentaColorCorrelation(), list1.get(i));
-				 }
+			 if(corr.getThreeColorCorrelation() > threshold) {
+				 jedis.zadd("threecolor-corr", corr.getThreeColorCorrelation(), list1.get(i));
 			 }
-		     
-		     // let's get the top 10 for each, remove the rest
-		     
-		    
-		     for( JedisFilter jf : filters) {
-		    	 jedis.zremrangeByRank(jf.getFilterName(), 0, -maxMatches + 1);
-		    	 //jedis.zunionstore("all-corr",z,jf.getFilterName());
-		     }
-		     
-		     
-		     //can't do unionstore in the for loop to aggregate, we need to do it here, let's get the max
-		     ZParams z = new ZParams();
-		     z.aggregate(ZParams.Aggregate.MAX);
-		     jedis.zunionstore("all-corr", z, "threecolor-corr", "high-corr", "low-corr", "red-corr", "green-corr",
-		    		 "blue-corr","yellow-corr", "cyan-corr", "magenta-corr");
-		     
-		     // let's print out the unique ones and its score
-		     Set<String> qq = jedis.zrevrange("all-corr", 0, -1);
-		     Set<BirdsResults> bResults = new HashSet<BirdsResults>();
-		     for(String s : qq) {
-		    	 Set<FilterResults> fResults = new HashSet<FilterResults>();
-		    	 System.out.println(s + " all-corr " + jedis.zscore("all-corr", s));
-		    	 for( JedisFilter jf : filters) {
-		    		 if(jedis.zscore(jf.getFilterName(),s) != null) {
-		    			 FilterResults fr = new FilterResults(jf.getFilterName(), jedis.zscore(jf.getFilterName(),s));
-		    			 fResults.add(fr);
-		    			 System.out.println("\t" + s + " " + jf.getFilterName() + " " 
-		    					 + jedis.zscore(jf.getFilterName(), s));
-		    		 }
-		    	 }
-		    	 
-		    	 int p = s.indexOf(".");
-		    	 int p1 = s.indexOf("/");
-		    	 String birdName = s.substring(p + 1, p1).replaceAll("_", " ");
-		    	 BirdsResults br = new BirdsResults(birdName, s, jedis.zscore("all-corr", s), fResults);
-		    	 bResults.add(br);
-		     }
-		     
-		     results.setNumSpecies(numSpecies);
-		     results.setNumBirds(numImages);
-		     results.setbResults(bResults);
-		     
-		     // let's remove the temporary keys
-		     for( JedisFilter jf : filters) {
-		    	 jedis.del(jf.getFilterName());
-		     }
-		     jedis.del("all-corr");
+			 
+			 if(corr.getLowColorCorrelation() > threshold) {
+				 jedis.zadd("low-corr", corr.getLowColorCorrelation(), list1.get(i));
+			 }
+			 
+			 if(corr.getHighColorCorrelation() > threshold) {
+				 jedis.zadd("high-corr", corr.getHighColorCorrelation(), list1.get(i));
+			 }
+			 
+			 if(corr.getRedColorCorrelation() > threshold) {
+				 jedis.zadd("red-corr", corr.getRedColorCorrelation(), list1.get(i));
+			 }
+			 
+			 if(corr.getGreenColorCorrelation() > threshold) {
+				 jedis.zadd("green-corr", corr.getGreenColorCorrelation(), list1.get(i));
+			 }
+			 
+			 if(corr.getBlueColorCorrelation() > threshold) {
+				 jedis.zadd("blue-corr", corr.getBlueColorCorrelation(), list1.get(i));
+			 }
+			 
+			 if(corr.getYellowColorCorrelation() > threshold) {
+				 jedis.zadd("yellow-corr", corr.getYellowColorCorrelation(), list1.get(i));
+			 }
+			 
+			 if(corr.getCyanColorCorrelation() > threshold) {
+				 jedis.zadd("cyan-corr", corr.getCyanColorCorrelation(), list1.get(i));
+			 }
+			 
+			 if(corr.getMagentaColorCorrelation() > threshold) {
+				 jedis.zadd("magenta-corr", corr.getMagentaColorCorrelation(), list1.get(i));
+			 }
+		 }
+	     
+	     // let's get the top 10 for each, remove the rest
+	     	    
+	     for( JedisFilter jf : filters) {
+	    	 jedis.zremrangeByRank(jf.getFilterName(), 0, -maxMatches + 1);
+	    	 //jedis.zunionstore("all-corr",z,jf.getFilterName());
+	     }
+	     
+	     
+	     //can't do unionstore in the for loop to aggregate, we need to do it here, let's get the max
+	     ZParams z = new ZParams();
+	     z.aggregate(ZParams.Aggregate.MAX);
+	     jedis.zunionstore("all-corr", z, "threecolor-corr", "high-corr", "low-corr", "red-corr", "green-corr",
+	    		 "blue-corr","yellow-corr", "cyan-corr", "magenta-corr");
+	     
+	     // let's print out the unique ones and its score
+	     Set<String> qq = jedis.zrevrange("all-corr", 0, -1);
+	     Set<BirdsResults> bResults = new HashSet<BirdsResults>();
+	     for(String s : qq) {
+	    	 Set<FilterResults> fResults = new HashSet<FilterResults>();
+	    	 System.out.println(s + " all-corr " + jedis.zscore("all-corr", s));
+	    	 for( JedisFilter jf : filters) {
+	    		 if(jedis.zscore(jf.getFilterName(),s) != null) {
+	    			 FilterResults fr = new FilterResults(jf.getFilterName(), jedis.zscore(jf.getFilterName(),s));
+	    			 fResults.add(fr);
+	    			 System.out.println("\t" + s + " " + jf.getFilterName() + " " 
+	    					 + jedis.zscore(jf.getFilterName(), s));
+	    		 }
+	    	 }
+	    	 
+	    	 int p = s.indexOf(".");
+	    	 int p1 = s.indexOf("/");
+	    	 String birdName = s.substring(p + 1, p1).replaceAll("_", " ");
+	    	 BirdsResults br = new BirdsResults(birdName, s, jedis.zscore("all-corr", s), fResults);
+	    	 bResults.add(br);
+	     }
+	     
+	     results.setNumSpecies(numSpecies);
+	     results.setNumBirds(numImages);
+	     results.setbResults(bResults);
+	     
+	     // let's remove the temporary keys
+	     for( JedisFilter jf : filters) {
+	    	 jedis.del(jf.getFilterName());
+	     }
+	     jedis.del("all-corr");
 
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-		finally {
-			jedis.close();
-		}
 		return results;
 		
 	}
