@@ -429,13 +429,22 @@ var CROP = (function () {
 		            alert(msg);
 		        },
 		      	success: function(data) {
-		      		var items = [];
-		      		items.push( "<li>number of birds " + data.numBirds + "</li>" );
-		      		items.push( "<li>number of species " + data.numSpecies + "</li>" );
-		      		$( "<ul/>", {
-			      	    "class": "pict",
-			      	    html: items.join( "" )
-			      	  }).appendTo( "body" );
+		      		
+		      	// remove all child nodes from pict
+		      		var mContainer1 = document.getElementsByClassName("pict")[0];
+			      		while (mContainer1.firstChild) {
+			      			mContainer1.removeChild(mContainer1.firstChild);
+			      		}
+		      		
+			      	var numBirds = document.createElement("li");
+			      	var txtA = document.createTextNode("number of birds " + data.numBirds);
+			      	numBirds.appendChild(txtA);
+		      		mContainer1.appendChild(numBirds);
+			      	
+		      		var numSpecies = document.createElement("li");
+			      	var txtB = document.createTextNode("number of species " + data.numSpecies);
+			      	numSpecies.appendChild(txtB);
+		      		mContainer1.appendChild(numSpecies);
 		      		
 		      		// remove all child nodes from container
 		      		var mContainer = document.getElementsByClassName("container")[0];
@@ -472,8 +481,11 @@ var CROP = (function () {
 			      		
 			      		var img = document.createElement('img');
 			      		img.src = 'img/croppedImages/' + counter.path;
-			      		img.alt = counter.birdName;
+			      		var path = document.createElement('caption')
+			      		var txt3 = document.createTextNode(counter.birdName);
+			      		path.appendChild(txt3);
 			      		li.appendChild(img);
+			      		li.appendChild(path);
 			      		mSlider.appendChild(li);
 			      		
 			      		var li1 = document.createElement("li");
