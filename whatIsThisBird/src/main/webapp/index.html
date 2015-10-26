@@ -26,12 +26,12 @@
 
 	<ul class="cmd">
 		<li onclick="foo.import();">Import</li>
-		<li onclick="foo.zoom('min');">Min</li>
-		<li onclick="foo.zoom('max');">Max</li>
-		<li onclick="foo.flip();">Flip</li>
-		<li onclick="foo.rotate();">Rotate</li>
-		<li class="maskbg">Mask</li>
-		<li><a id="unqiueID" onclick="foo.download(300, 300, 'test', 'jpeg', this.id);" href="#">Download</a></li>
+<!-- 		<li onclick="foo.zoom('min');">Min</li> -->
+<!-- 		<li onclick="foo.zoom('max');">Max</li> -->
+<!-- 		<li onclick="foo.flip();">Flip</li> -->
+<!-- 		<li onclick="foo.rotate();">Rotate</li> -->
+<!-- 		<li class="maskbg">Mask</li> -->
+<!-- 		<li><a id="unqiueID" onclick="foo.download(300, 300, 'test', 'jpeg', this.id);" href="#">Download</a></li> -->
 		<li><a id="here" onclick="foo.upload(300, 300, 'jpeg', this.id);">Upload</a></li>
 <!-- 		<li onclick="console.log(foo.crop(300,300,'png'))" data-tooltip="Prints object to console">Crop</li> -->
 <!-- 		<li onclick="console.log(foo.original())" data-tooltip="Prints object to console">Original</li> -->
@@ -57,7 +57,7 @@
 			container: '.default',
 
 			// image to load, accepts base64 string
-			image: 'img/one.jpg',
+			image: 'img/file1.jpeg',
 
 			// aspect ratio
 			width: 300,
@@ -97,6 +97,8 @@
 
 <div class="container">
 </div>
-
+<ul class="pict">
+<li></li>
+</ul>
 </body>
 </html>
