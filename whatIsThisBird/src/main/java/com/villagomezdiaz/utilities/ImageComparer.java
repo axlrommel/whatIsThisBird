@@ -18,7 +18,16 @@ import com.villagomezdiaz.common.ImageStatistics;
 import com.villagomezdiaz.common.ds.BirdMatchingResults;
 import com.villagomezdiaz.common.ds.BirdsResults;
 import com.villagomezdiaz.common.ds.FilterResults;
-import com.villagomezdiaz.common.filters.JedisFilter;
+import com.villagomezdiaz.common.results.JedisBlueCorrelationResults;
+import com.villagomezdiaz.common.results.JedisCorrelationResults;
+import com.villagomezdiaz.common.results.JedisCyanCorrelationResults;
+import com.villagomezdiaz.common.results.JedisGreenCorrelationResults;
+import com.villagomezdiaz.common.results.JedisHighCorrelationResults;
+import com.villagomezdiaz.common.results.JedisLowCorrelationResults;
+import com.villagomezdiaz.common.results.JedisMagentaCorrelationResults;
+import com.villagomezdiaz.common.results.JedisRedCorrelationResults;
+import com.villagomezdiaz.common.results.JedisThreeColorCorrelationResults;
+import com.villagomezdiaz.common.results.JedisYellowCorrelationResults;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.ZParams;
@@ -96,7 +105,7 @@ public class ImageComparer {
 		 Long numSpecies = jedis.scard("birds");
 		 
 		 //let's create the filters
-		 ArrayList<JedisFilter> filters = initFilters();
+		 ArrayList<JedisCorrelationResults> filters = initFilters();
 		 			
 		 List<String> list1 = jedis.lrange("images", 0 ,-1);
 		 int numImages = list1.size();
@@ -115,46 +124,16 @@ public class ImageComparer {
 			 
 			 ImageCorrelation corr = new ImageCorrelation(inputStat,fStat);
 
-			 if(corr.getThreeColorCorrelation() > threshold) {
-				 jedis.zadd("threecolor-corr", corr.getThreeColorCorrelation(), list1.get(i));
-			 }
-			 
-			 if(corr.getLowColorCorrelation() > threshold) {
-				 jedis.zadd("low-corr", corr.getLowColorCorrelation(), list1.get(i));
-			 }
-			 
-			 if(corr.getHighColorCorrelation() > threshold) {
-				 jedis.zadd("high-corr", corr.getHighColorCorrelation(), list1.get(i));
-			 }
-			 
-			 if(corr.getRedColorCorrelation() > threshold) {
-				 jedis.zadd("red-corr", corr.getRedColorCorrelation(), list1.get(i));
-			 }
-			 
-			 if(corr.getGreenColorCorrelation() > threshold) {
-				 jedis.zadd("green-corr", corr.getGreenColorCorrelation(), list1.get(i));
-			 }
-			 
-			 if(corr.getBlueColorCorrelation() > threshold) {
-				 jedis.zadd("blue-corr", corr.getBlueColorCorrelation(), list1.get(i));
-			 }
-			 
-			 if(corr.getYellowColorCorrelation() > threshold) {
-				 jedis.zadd("yellow-corr", corr.getYellowColorCorrelation(), list1.get(i));
-			 }
-			 
-			 if(corr.getCyanColorCorrelation() > threshold) {
-				 jedis.zadd("cyan-corr", corr.getCyanColorCorrelation(), list1.get(i));
-			 }
-			 
-			 if(corr.getMagentaColorCorrelation() > threshold) {
-				 jedis.zadd("magenta-corr", corr.getMagentaColorCorrelation(), list1.get(i));
-			 }
+			 for( JedisCorrelationResults jf : filters) {
+				 if(jf.getCorrelation(corr) >= threshold) {
+					 jedis.zadd(jf.getFilterName(), jf.getCorrelation(corr),list1.get(i));
+				 }
+		     }
 		 }
 	     
 	     // let's get the top 10 for each, remove the rest
 	     	    
-	     for( JedisFilter jf : filters) {
+	     for( JedisCorrelationResults jf : filters) {
 	    	 jedis.zremrangeByRank(jf.getFilterName(), 0, -maxMatches + 1);
 	    	 //jedis.zunionstore("all-corr",z,jf.getFilterName());
 	     }
@@ -172,11 +151,11 @@ public class ImageComparer {
 	     for(String s : qq) {
 	    	 Set<FilterResults> fResults = new HashSet<FilterResults>();
 	    	 System.out.println(s + " all-corr " + jedis.zscore("all-corr", s));
-	    	 for( JedisFilter jf : filters) {
+	    	 for( JedisCorrelationResults jf : filters) {
 	    		 if(jedis.zscore(jf.getFilterName(),s) != null) {
-	    			 FilterResults fr = new FilterResults(jf.getFilterName(), jedis.zscore(jf.getFilterName(),s));
+	    			 FilterResults fr = new FilterResults(jf.getClientFilterName(), jedis.zscore(jf.getFilterName(),s));
 	    			 fResults.add(fr);
-	    			 System.out.println("\t" + s + " " + jf.getFilterName() + " " 
+	    			 System.out.println("\t" + s + " " + jf.getClientFilterName() + " " 
 	    					 + jedis.zscore(jf.getFilterName(), s));
 	    		 }
 	    	 }
@@ -193,7 +172,7 @@ public class ImageComparer {
 	     results.setbResults(bResults);
 	     
 	     // let's remove the temporary keys
-	     for( JedisFilter jf : filters) {
+	     for( JedisCorrelationResults jf : filters) {
 	    	 jedis.del(jf.getFilterName());
 	     }
 	     jedis.del("all-corr");
@@ -202,28 +181,28 @@ public class ImageComparer {
 		
 	}
 
-	private ArrayList<JedisFilter> initFilters() {
-		ArrayList<JedisFilter> filters = new ArrayList<JedisFilter>();
+	private ArrayList<JedisCorrelationResults> initFilters() {
+		ArrayList<JedisCorrelationResults> correlationResults = new ArrayList<JedisCorrelationResults>();
 		 
-		 filters.add(new JedisFilter("threecolor-corr"));
+		 correlationResults.add(new JedisThreeColorCorrelationResults("threecolor-corr"));
 
-		 filters.add(new JedisFilter("low-corr"));
+		 correlationResults.add(new JedisLowCorrelationResults("low-corr"));
 		 
-		 filters.add(new JedisFilter("high-corr"));
+		 correlationResults.add(new JedisHighCorrelationResults("high-corr"));
 
-		 filters.add(new JedisFilter("red-corr"));
+		 correlationResults.add(new JedisRedCorrelationResults("red-corr"));
 
-		 filters.add(new JedisFilter("green-corr"));
+		 correlationResults.add(new JedisGreenCorrelationResults("green-corr"));
 
-		 filters.add(new JedisFilter("blue-corr"));
+		 correlationResults.add(new JedisBlueCorrelationResults("blue-corr"));
 
-		 filters.add(new JedisFilter("yellow-corr"));
+		 correlationResults.add(new JedisYellowCorrelationResults("yellow-corr"));
 
-		 filters.add(new JedisFilter("cyan-corr"));
+		 correlationResults.add(new JedisCyanCorrelationResults("cyan-corr"));
 
-		 filters.add(new JedisFilter("magenta-corr"));
+		 correlationResults.add(new JedisMagentaCorrelationResults("magenta-corr"));
 		 
-		 return filters;
+		 return correlationResults;
 	}
 }
 
