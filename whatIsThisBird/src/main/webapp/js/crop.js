@@ -437,12 +437,12 @@ var CROP = (function () {
 			      		}
 		      		
 			      	var numBirds = document.createElement("li");
-			      	var txtA = document.createTextNode("number of birds " + data.numBirds);
+			      	var txtA = document.createTextNode("total number of birds searched: " + data.numBirds);
 			      	numBirds.appendChild(txtA);
 		      		mContainer1.appendChild(numBirds);
 			      	
 		      		var numSpecies = document.createElement("li");
-			      	var txtB = document.createTextNode("number of species " + data.numSpecies);
+			      	var txtB = document.createTextNode("total number of species searched: " + data.numSpecies);
 			      	numSpecies.appendChild(txtB);
 		      		mContainer1.appendChild(numSpecies);
 		      		
@@ -477,12 +477,18 @@ var CROP = (function () {
 		      		data.bResults.sort(sort_by('overallScore',true,parseFloat));
 		      		for (var i = 0; i < data.bResults.length; i++) {
 		      		    var counter = data.bResults[i];
+		      		    // sort individual results
+		      		    counter.fResults.sort(sort_by('result',true,parseFloat));
+		      		  
 			      		var li = document.createElement("li");
-			      		
+			      			
 			      		var img = document.createElement('img');
 			      		img.src = 'img/croppedImages/' + counter.path;
-			      		var path = document.createElement('caption')
-			      		var txt3 = document.createTextNode(counter.birdName);
+			      		var path = document.createElement('caption');
+			      		//print top result + and filter
+			      		var txt3 = document.createTextNode(counter.birdName + " - " + 
+			      				counter.fResults[0].filter + " filter: " + 
+			      				counter.fResults[0].result.toFixed(2)*100 + "% match");
 			      		path.appendChild(txt3);
 			      		li.appendChild(img);
 			      		li.appendChild(path);
