@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>
+function sendAjax() {
+	   $.ajax({
+		   url: "JSONServlet2",
+			type: 'GET',
+			dataType: 'json',
+			<!--data: JSON.stringify(article),-->
+			contentType: 'application/json',
+			mimeType: 'application/json',
+			error: function (jqXHR, exception) {
+	            var msg = '';
+	            if (jqXHR.status === 0) {
+	                msg = 'Not connect.\n Verify Network.';
+	            } else if (jqXHR.status == 404) {
+	                msg = 'Requested page not found. [404]';
+	            } else if (jqXHR.status == 500) {
+	                msg = 'Internal Server Error [500].';
+	            } else if (exception === 'parsererror') {
+	                msg = 'Requested JSON parse failed.';
+	            } else if (exception === 'timeout') {
+	                msg = 'Time out error.';
+	            } else if (exception === 'abort') {
+	                msg = 'Ajax request aborted.';
+	            } else {
+	                msg = 'Uncaught Error.\n' + jqXHR.responseText;
+	            }
+	            alert(msg);
+	        },
+	      	success: function(data) {
+	      		var items = [];
+		      	  $.each( data, function( key, val ) {
+		      	    items.push( "<li id='" + key + "'>" + val + "</li>" );
+		      	  });
+		      	 
+		      	  $( "<ul/>", {
+		      	    "class": "my-new-list",
+		      	    html: items.join( "" )
+		      	  }).appendTo( "body" );
+	      }
+	   });
+	}
+</script>
+</head>
+<body>
+
+<button id="info" onclick="sendAjax()">Click me to load info!</button>
+<div id="info1"></div>
+
+</body>
+</html>
