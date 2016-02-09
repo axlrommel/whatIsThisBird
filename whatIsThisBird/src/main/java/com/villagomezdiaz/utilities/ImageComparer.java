@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
@@ -94,8 +95,12 @@ public class ImageComparer {
 		 ColorBlackBackgroundFilter filter = new ColorBlackBackgroundFilter(50);
 		 BufferedImage imageTmp = filter.imageConvertToBlackBackgroundFromAll(imageIn);
 		 
+		 Random rn = new Random();
+		 int newRn = rn.nextInt(100000);
+		 String appendString = Integer.toString(newRn);
+		 
 		 //write temp image
-		 int newHeight = imageTmp.getHeight()*2/3;
+		 int newHeight = imageTmp.getHeight()*5/6; // discard the bottom 1/6
 		 BufferedImage imageTmp1 = ImageUtils.getSubimage(imageTmp, 0, 0, imageTmp.getWidth(), newHeight);
 		 ImageStatistics inputStat = new ImageStatistics(imageTmp1);
 		 //System.out.println(inputStat.getTopRedsAsString() + " " + inputStat.getTopGreensAsString() + " " +
@@ -105,7 +110,7 @@ public class ImageComparer {
 		 Long numSpecies = jedis.scard("birds");
 		 
 		 //let's create the filters
-		 ArrayList<JedisCorrelationResults> filters = initFilters();
+		 ArrayList<JedisCorrelationResults> filters = initFilters(appendString);
 		 			
 		 List<String> list1 = jedis.lrange("images", 0 ,-1);
 		 int numImages = list1.size();
@@ -138,19 +143,23 @@ public class ImageComparer {
 	    	 //jedis.zunionstore("all-corr",z,jf.getFilterName());
 	     }
 	     
+	     //Jedis Sorted Set to store all results
+	     String totalResultsSet = appendString + "all-corr";
 	     
 	     //can't do unionstore in the for loop to aggregate, we need to do it here, let's get the max
 	     ZParams z = new ZParams();
 	     z.aggregate(ZParams.Aggregate.MAX);
-	     jedis.zunionstore("all-corr", z, "threecolor-corr", "high-corr", "low-corr", "red-corr", "green-corr",
-	    		 "blue-corr","yellow-corr", "cyan-corr", "magenta-corr");
+	     jedis.zunionstore(totalResultsSet , z, appendString + "threecolor-corr", appendString + "high-corr", 
+	    		 appendString + "low-corr", appendString + "red-corr", appendString + "green-corr",
+	    		 appendString + "blue-corr", appendString + "yellow-corr", appendString + "cyan-corr", 
+	    		 appendString + "magenta-corr");
 	     
 	     // let's print out the unique ones and its score
-	     Set<String> qq = jedis.zrevrange("all-corr", 0, -1);
+	     Set<String> qq = jedis.zrevrange(totalResultsSet, 0, -1);
 	     Set<BirdsResults> bResults = new HashSet<BirdsResults>();
 	     for(String s : qq) {
 	    	 Set<FilterResults> fResults = new HashSet<FilterResults>();
-	    	 System.out.println(s + " all-corr " + jedis.zscore("all-corr", s));
+	    	 System.out.println(s + " all-corr " + jedis.zscore(totalResultsSet, s));
 	    	 for( JedisCorrelationResults jf : filters) {
 	    		 if(jedis.zscore(jf.getFilterName(),s) != null) {
 	    			 FilterResults fr = new FilterResults(jf.getClientFilterName(), jedis.zscore(jf.getFilterName(),s));
@@ -163,7 +172,7 @@ public class ImageComparer {
 	    	 int p = s.indexOf(".");
 	    	 int p1 = s.indexOf("/");
 	    	 String birdName = s.substring(p + 1, p1).replaceAll("_", " ");
-	    	 BirdsResults br = new BirdsResults(birdName, s, jedis.zscore("all-corr", s), fResults);
+	    	 BirdsResults br = new BirdsResults(birdName, s, jedis.zscore(totalResultsSet, s), fResults);
 	    	 bResults.add(br);
 	     }
 	     
@@ -175,32 +184,32 @@ public class ImageComparer {
 	     for( JedisCorrelationResults jf : filters) {
 	    	 jedis.del(jf.getFilterName());
 	     }
-	     jedis.del("all-corr");
+	     jedis.del(totalResultsSet);
 
 		return results;
 		
 	}
 
-	private ArrayList<JedisCorrelationResults> initFilters() {
+	private ArrayList<JedisCorrelationResults> initFilters(String appendString) {
 		ArrayList<JedisCorrelationResults> correlationResults = new ArrayList<JedisCorrelationResults>();
 		 
-		 correlationResults.add(new JedisThreeColorCorrelationResults("threecolor-corr"));
+		 correlationResults.add(new JedisThreeColorCorrelationResults(appendString + "threecolor-corr"));
 
-		 correlationResults.add(new JedisLowCorrelationResults("low-corr"));
+		 correlationResults.add(new JedisLowCorrelationResults(appendString + "low-corr"));
 		 
-		 correlationResults.add(new JedisHighCorrelationResults("high-corr"));
+		 correlationResults.add(new JedisHighCorrelationResults(appendString + "high-corr"));
 
-		 correlationResults.add(new JedisRedCorrelationResults("red-corr"));
+		 correlationResults.add(new JedisRedCorrelationResults(appendString + "red-corr"));
 
-		 correlationResults.add(new JedisGreenCorrelationResults("green-corr"));
+		 correlationResults.add(new JedisGreenCorrelationResults(appendString + "green-corr"));
 
-		 correlationResults.add(new JedisBlueCorrelationResults("blue-corr"));
+		 correlationResults.add(new JedisBlueCorrelationResults(appendString + "blue-corr"));
 
-		 correlationResults.add(new JedisYellowCorrelationResults("yellow-corr"));
+		 correlationResults.add(new JedisYellowCorrelationResults(appendString + "yellow-corr"));
 
-		 correlationResults.add(new JedisCyanCorrelationResults("cyan-corr"));
+		 correlationResults.add(new JedisCyanCorrelationResults(appendString + "cyan-corr"));
 
-		 correlationResults.add(new JedisMagentaCorrelationResults("magenta-corr"));
+		 correlationResults.add(new JedisMagentaCorrelationResults(appendString + "magenta-corr"));
 		 
 		 return correlationResults;
 	}
