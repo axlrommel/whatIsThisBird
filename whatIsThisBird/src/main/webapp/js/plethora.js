@@ -26,10 +26,13 @@ function getBirds() {
 	            alert(msg);
 	        },
 	      	success: function(data) {
-	      		var myWindow = window.open("Bird List", "Bird List","" , "");
+	      		var myWindow = window.open("Bird List And Source", "Bird List And Source","" , "");
 	      		myWindow.document.write("<!doctype html>");
 	      		myWindow.document.write("<html>");
-	      		myWindow.document.write("<head><title>Bird List</title></head>");
+	      		myWindow.document.write("<head>");
+	      		myWindow.document.write("<title>Bird List And Source</title>");
+	      		myWindow.document.write("<p>Source: <a href=\"http://www.vision.caltech.edu/visipedia/CUB-200-2011.html\">Caltech-UCSD Birds-200-2011</a></p>");
+	      		myWindow.document.write("</head>");
 	      		myWindow.document.write("<body>");
 	      		var list = data.split("\n");
 	      		for(i = 0; i < list.length; i++) {
