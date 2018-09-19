@@ -27,6 +27,8 @@ mvn install
 
 In order to run it:
 
+replace your local redis dump.rdb with redis/dump.rdb
+
 redis-server /usr/local/etc/redis.conf
 
 catalina run
