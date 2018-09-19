@@ -39,7 +39,7 @@ public class ImageComparer {
 	static final int maxMatches = 10;
 	static final double threshold = 0.60;
 	private static String outputHttpPath = "http://localhost/images/input/";
-	private static String outputSystemPath = "/var/www/html/images/input/";
+	private static String outputSystemPath = "/var/tmp/";
 	
 	public static void main(String[] args) {
 		ImageComparer ic = new ImageComparer();

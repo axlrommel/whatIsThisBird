@@ -17,4 +17,20 @@ How the backend works:
     
     - We then proceed to return those images to the client so it can display them. 
     
+Running it:
+
+mvn install:install-file -Dfile=./lib/Filters.jar -DgroupId=ImageFilters -DartifactId=Filters -Dversion=1.0 -Dpackaging=jar -DgeneratePom=true
+
+mvn compile
+
+mvn install
+
+In order to run it:
+
+redis-server /usr/local/etc/redis.conf
+
+catalina run
+
+
+
 
