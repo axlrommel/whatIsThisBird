@@ -17,7 +17,7 @@ How the backend works:
     
     - We then proceed to return those images to the client so it can display them. 
     
-Building it:
+Building and running:
 
 `mvn install:install-file -Dfile=./lib/Filters.jar -DgroupId=ImageFilters -DartifactId=Filters -Dversion=1.0 -Dpackaging=jar -DgeneratePom=true`
 
@@ -25,17 +25,11 @@ Building it:
 
 `mvn install`
 
-Running it (you will need Redis and Tomcat):
+`docker build -t what-is-that-bird .`
 
-replace your local Redis' dump.rdb file with redis/dump.rdb
+`docker run -it -p 8080:8080 what-is-that-bird`
 
-(start Redis) `redis-server /usr/local/etc/redis.conf`
 
-(copy war file)
-`cp target/whatIsThisBird-1.0.war /usr/local/tomcat/webapps/ROOT.war`
-
-(start Tomcat)
-`catalina run`
 
 [go to http://localhost:8080/](http://localhost:8080/)
 
