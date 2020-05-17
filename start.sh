@@ -7,7 +7,7 @@ if [ $status -ne 0 ]; then
   echo "Failed to start my_first_process: $status"
   exit $status
 fi
-sleep 20;
+sleep 10;
 # Start the second process
 catalina.sh run
 status=$?
