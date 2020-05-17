@@ -1,25 +1,30 @@
 <!doctype html>
 <html lang="en">
+
 <head>
 	<meta charset="utf-8">
 	<title>What Is That Bird?</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
+	<meta name="viewport"
+		content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
 	<link href="css/jberczel.css" rel="stylesheet" type="text/css" />
 	<link rel="icon" href="data:;base64,iVBORw0KGgo=">
-	<link href='http://fonts.googleapis.com/css?family=Bitter|Cantora+One|PT+Serif:400,700' rel='stylesheet' type='text/css'>
+	<link
+		href='http://fonts.googleapis.com/css?family=Bitter|Cantora+One|PT+Serif:400,700'
+		rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" type="text/css" href="css/example.css">
 	<link rel="stylesheet" type="text/css" href="css/crop.css">
- 	<script src="js/jquery.min.js"></script>
+	<script src="js/jquery.min.js"></script>
 	<script src="js/syntaxhighlight.js"></script>
 	<script src="js/crop.js"></script>
 	<script src="js/plethora.js"></script>
 	<p>Instructions:</p>
-	<p>1. Upload your picture by clicking on the 'Import' Link</p>
-	<p>2. Select the part of the picture with the most representative colors</p>
-	<p>3. Use the hand tool to center the image, and the slider on the right to zoom in and out</p>
-	<p>4. Leave some background as the image filter expects it</p>
-	<p>5. Click 'Find!' and wait a few seconds to get your results</p>
-		
+	<p>1. Click on 'Import' to upload your picture</p>
+	<p>2. Use the hand tool to center the image, and the slider on the right to
+		zoom in and out</p>
+	<p>3. Select the part of the picture with the most representative colors, but
+		leave some background as the image filter expects it</p>
+	<p>4. Click 'Find!' and wait about 10 seconds to get your results</p>
+
 </head>
 
 <body>
@@ -33,15 +38,16 @@
 
 	<ul class="cmd">
 		<li onclick="foo.import();">Import</li>
-<!-- 		<li onclick="foo.zoom('min');">Min</li> -->
-<!-- 		<li onclick="foo.zoom('max');">Max</li> -->
-<!-- 		<li onclick="foo.flip();">Flip</li> -->
-<!-- 		<li onclick="foo.rotate();">Rotate</li> -->
-<!-- 		<li class="maskbg">Mask</li> -->
-<!-- 		<li><a id="unqiueID" onclick="foo.download(300, 300, 'test', 'jpeg', this.id);" href="#">Download</a></li> -->
-		<li><a id="here" onclick="foo.upload(300, 300, 'jpeg', this.id);">Find!</a></li>
-<!-- 		<li onclick="console.log(foo.crop(300,300,'png'))" data-tooltip="Prints object to console">Crop</li> -->
-<!-- 		<li onclick="console.log(foo.original())" data-tooltip="Prints object to console">Original</li> -->
+		<!-- 		<li onclick="foo.zoom('min');">Min</li> -->
+		<!-- 		<li onclick="foo.zoom('max');">Max</li> -->
+		<!-- 		<li onclick="foo.flip();">Flip</li> -->
+		<!-- 		<li onclick="foo.rotate();">Rotate</li> -->
+		<!-- 		<li class="maskbg">Mask</li> -->
+		<!-- 		<li><a id="unqiueID" onclick="foo.download(300, 300, 'test', 'jpeg', this.id);" href="#">Download</a></li> -->
+		<li><a id="here" onclick="foo.upload(300, 300, 'jpeg', this.id);">Find!</a>
+		</li>
+		<!-- 		<li onclick="console.log(foo.crop(300,300,'png'))" data-tooltip="Prints object to console">Crop</li> -->
+		<!-- 		<li onclick="console.log(foo.original())" data-tooltip="Prints object to console">Original</li> -->
 	</ul>
 
 	<!-- preview container element -->
@@ -87,7 +93,7 @@
 
 		});
 
-	  
+
 		//  toggle mask
 		// --------------------------------------------------------------------------
 
@@ -101,13 +107,45 @@
 
 
 	</script>
-<ul class="pict">
-<li></li>
-</ul>
-<div class="container">
-</div>
-<button id="info" onclick="getBirds()">Bird List And Source</button>
+	<ul class="pict">
+		<li></li>
+	</ul>
+	<div class="container">
+	</div>
+	<button id="info" onclick="getBirds()">Bird List And Source</button>
+	<div>
+		<p>Do you like it? Check out the source code and the Docker image</p>
+		<p><a href="https://github.com/axlrommel/whatIsThisBird"
+				target="_blank">Github Repository</a>
+		</p>
+		<p><a href="https://github.com/axlrommel/what-is-that-bird-docker"
+				target="_blank">Docker
+				Github Repository</a>
+		</p>
+		<p><a href="https://hub.docker.com/r/axlrommel/what-is-that-bird"
+				target="_blank">Docker
+				Image</a></p>
+	</div>
 </body>
 
-<footer>Copyright 2015-2016 by <a href=http://www.rommelvillagomez.com>Rommel Villagomez</a>, All Rights Reserved</footer>
+<footer>Copyright 2015-2020 by <a href="https://rommelvillagomez.com"
+		target="_blank">Rommel
+		Villagomez</a>
+	<p>Permission is hereby granted, free of charge, to any person obtaining a
+		copy of this software and associated documentation files (the "Software"),
+		to deal in the Software without restriction, including without limitation
+		the rights to use, copy, modify, merge, publish, distribute, sublicense,
+		and/or sell copies of the Software, and to permit persons to whom the
+		Software is furnished to do so, subject to the following conditions:</p>
+	<p>The above copyright notice and this permission notice shall be included in
+		all copies or substantial portions of the Software.</p>
+	<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+		FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+		IN THE SOFTWARE.</p>
+</footer>
+
 </html>
