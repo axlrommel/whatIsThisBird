@@ -32,3 +32,14 @@ Bird database pictures are found here: http://www.vision.caltech.edu/visipedia/C
 [go to http://localhost:8080/](http://localhost:8080/)
 
 questions? <rommelvillagomez@hotmail.com>
+
+
+## docker clean stuff
+
+`docker image prune -f`
+
+`docker container prune -f`
+
+`docker rmi $(docker images -q)`
+
+`docker rm -v $(docker ps -qa)`
