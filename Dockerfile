@@ -1,4 +1,4 @@
-FROM tomcat:jdk8-openjdk
+FROM tomcat:9.0
 ADD target/whatIsThisBird-1.0.war /usr/local/tomcat/webapps/ROOT.war
 ADD resources/web.xml /usr/local/tomcat/webapps/manager/WEB-INF
 COPY --from=redis:6.0.1 /usr/local/bin/redis-server /usr/local/bin/redis-server
