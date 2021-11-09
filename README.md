@@ -43,3 +43,7 @@ questions? <rommelvillagomez@hotmail.com>
 `docker rmi $(docker images -q)`
 
 `docker rm -v $(docker ps -qa)`
+
+## lightsail deploy
+
+`aws lightsail push-container-image --service-name what-is-that-bird --label what-is-that-bird --image what-is-that-bird`

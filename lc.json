@@ -1,0 +1,15 @@
+{
+  "serviceName": "what-is-that-bird",
+  "containers": {
+     "hello-world": {
+        "image": ":what-is-that-bird.what-is-that-bird.1",
+        "ports": {
+           "8080": "HTTP"
+        }
+     }
+  },
+  "publicEndpoint": {
+     "containerName": "what-is-that-bird",
+     "containerPort": 8080
+  }
+}
